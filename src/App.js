@@ -1,38 +1,32 @@
-import { NavLink, Switch, Route } from 'react-router-dom';
+import { Component } from 'react';
+import { Switch, Route } from 'react-router-dom';
 import HomePage from "./views/HomePage";
 import MoviesPage from "./views/MoviesPage";
 import MovieDetailsPage from "./views/MovieDetailsPage";
-// import Reviews from "./views/Reviews";
-// import Cast from "./views/Cast";
-// import NotFoundWay from "./views/NotFoundWay"
+import AppBar from './components/AppBar';
+import routes from './route';
+ 
+// const HomePage = lazy(() => import('./views/HomePage.js' /* webpackChunkName: "HomePage" */));
+// const MoviesPage = lazy(() => import('./views/MoviesPage.js' /* webpackChunkName: "MoviesPage" */));
+// const MovieDetailsPage = lazy(() => import('./views/MovieDetailsPage.js' /* webpackChunkName: "MovieDetailsPage" */));
 
-const App = () => (
-  <>
-    <ul>
-      <li>
-        <NavLink
-          exact
-          to="/">
-          Home
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
-          to="/movies">
-          Movies
-        </NavLink>
-      </li>
-    </ul>
-
-    <Switch>
-      <Route exact path="/" component={HomePage} />
-      <Route exact path="/movies" component={MoviesPage} />
-      <Route exact path="/movies/:movieId" component={MovieDetailsPage} />
-      {/* <Route exact path="/movies/:movieId/cast" component={ Cast } />
-      <Route path="/movies/:movieId/reviews" component={Reviews} /> */}
-      {/* <Route path="/" component={NotFoundWay} /> */}
-    </Switch>
+class App extends Component{
+  render() {
+    return (
+      <>
+    <AppBar />
+    {/* <Suspense fullback={<h1>Loading...</h1>}> */}
+        <Switch>
+          <Route exact path={routes.home} component={HomePage} />
+          <Route exact path={routes.movies} component={MoviesPage} />
+          <Route path={routes.movieDetail} component={MovieDetailsPage} />
+          <Route component={HomePage} />
+        </Switch>
+      {/* </Suspense> */}
   </>
-)
+    )
+  }
+}
+  
 
 export default App;

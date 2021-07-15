@@ -1,11 +1,12 @@
 import { Component } from "react";
-import { NavLink } from 'react-router-dom';
 import axios from 'axios';
+import MoviesList from "../components/MoviesList";
+import apiRequest from "../apiRequest";
 
-export default class MoviesPage extends Component {
+class MoviesPage extends Component {
     state = {
         movie: '',
-        searchMoviesAr: []
+        searchMoviesArr: [],
     }
       inputChange = (e) => {
         const movieToSearch = e.target.value;
@@ -13,33 +14,30 @@ export default class MoviesPage extends Component {
     }
     fetchMovies = (movie) => {
         axios
-            .get(`https://api.themoviedb.org/3/search/movie?query=${movie}&api_key=f0ba1c040c2231856cd6d94b7e782bec`)
-            .then((response) => this.setState({searchMoviesAr: response.data.results}))
-           
+            .get(`${apiRequest.BASE_URL}/search/movie?query=${movie}&api_key=${apiRequest.API_KEY}`)
+            .then((response) => this.setState({searchMoviesArr: response.data.results}))           
     }
 
     onSearch = (e) => {
          e.preventDefault();
          if (!this.state.movie) return;
-         this.fetchMovies(this.state.movie);
+        this.fetchMovies(this.state.movie);
+        e.target.reset()
     }
 
     render() {
+        const { searchMoviesArr } = this.state;
         return (
             <>
                 <form onSubmit={this.onSearch}>
                     <input type='text' onChange={this.inputChange}/>
                     <button type='submit' >Find movie</button>
                 </form>
-                <ul>
-                    {this.state.searchMoviesAr.map(movie => (
-                        <li key={movie.id}>
-                            <NavLink to={`/movies/${movie.id}`}>
-                                {movie.title}
-                            </NavLink>
-                        </li>))}
-                </ul>
+                {searchMoviesArr && <MoviesList movies={searchMoviesArr} />
+                    }
             </>
         )
     }
 }
+
+export default MoviesPage;

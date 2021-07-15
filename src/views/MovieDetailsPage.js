@@ -1,20 +1,30 @@
 import { Component } from "react";
 import axios from 'axios';
-import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
+import { NavLink, Route, withRouter } from 'react-router-dom';
+import routes from "../route";
 import Cast from "./Cast";
 import Reviews from "./Reviews";
+import apiRequest from "../apiRequest";
 
 class MovieDetailsPage extends Component {
     state = {
         id: this.props.match.params.movieId,
-        movieDetails: {},  
+        movieDetails: {},
+        error: false
     }
     componentDidMount() {
-        axios.get(`https://api.themoviedb.org/3/movie/${this.state.id}?api_key=f0ba1c040c2231856cd6d94b7e782bec&language=en-US`).then((response) => 
-            this.setState({
-           movieDetails: response.data
-            }))
-       console.dir(Cast) 
+        axios.get(`${apiRequest.BASE_URL}/movie/${this.state.id}?api_key=${apiRequest.API_KEY}&language=en-US`)
+            .then((response) => this.setState({ movieDetails: response.data }))
+            .catch(() => this.setState({ error: true }));
+    }
+
+    goBackBtn = () => {
+        const { history, location } = this.props;
+
+        if (location.state && location.state.from) {
+            return history.push(location.state.from)
+        }
+        history.push(routes.movies)
     }
 
     render() {
@@ -26,38 +36,41 @@ class MovieDetailsPage extends Component {
             overview,
             genres
         } = this.state.movieDetails;
+        const { error, id } = this.state;
+
+         if (error) return <p>Something wrong!</p>
 
         return (
             <>
-                <button type="button">Go back</button>
-                <div>
-                    <div>
+                <button className="back-button" type="button" onClick={this.goBackBtn}>Go back</button>
+                <div className="movie-details">
+                    <div className="movie-poster">
                         <img src ={`https://themoviedb.org/t/p/w300${backdrop_path}`} alt={title}/>
                     </div>
-                    <div>
+                    <div className="movie-details-text">
                         <h1>{title } ({ release_date})</h1>
                         <p>User score: { vote_average }</p>
                         <h2>Overview</h2>
                         <p>{ overview}</p>
                         <h2>Genres</h2>
-                        {genres && <p>{genres.map((genre) => (
-                            <span key={genre.id}>
-                                {genre.name}
+                        {genres && <p>{genres.map(({id, name}) => (
+                            <span key={id} className="movie-genre">
+                                {name}
                             </span>
                         ))}
                         </p>
                         }
                     </div> 
                 </div>
-                <div>
+                <div className="additional-movie-info">
                      <ul>Additional information
                         <li>
-                            <NavLink to ={`/movies/${this.state.id}/cast`}>
+                            <NavLink to ={`${routes.movies}/${id}/${routes.cast}`}>
                                 Cast
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to={`/movies/${this.state.id}/reviews`}>
+                            <NavLink to={`${routes.movies}/${id}/${routes.reviews}`}>
                                 Review
                             </NavLink>
                         </li>                        
@@ -65,15 +78,15 @@ class MovieDetailsPage extends Component {
                 
                 </div>
                 <Route
-                    path={`/movies/${this.state.id}/cast`}
+                    path={`${routes.movies}/${id}/${routes.cast}`}
                     render={(props) => {
-                      return <Cast {...props} movieId={this.state.id} />;
+                      return <Cast {...props} movieId={id} />;
                 }}
             />
                 <Route
-                    path={`/movies/${this.state.id}/reviews`}
+                    path={`${routes.movies}/${id}/${routes.reviews}`}
                     render={(props) => {
-                        return <Reviews {...props} movieId={this.state.id} />;
+                        return <Reviews {...props} movieId={id} />;
                   }}
                 />
                 
