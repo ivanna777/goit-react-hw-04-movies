@@ -10,21 +10,13 @@ class MovieDetailsPage extends Component {
     state = {
         id: this.props.match.params.movieId,
         movieDetails: {},
-        error: false
+        error: false,
+        backPath: this.props.location?.state?.from || "/",
     }
     componentDidMount() {
         axios.get(`${apiRequest.BASE_URL}/movie/${this.state.id}?api_key=${apiRequest.API_KEY}&language=en-US`)
             .then((response) => this.setState({ movieDetails: response.data }))
             .catch(() => this.setState({ error: true }));
-    }
-
-    goBackBtn = () => {
-        const { history, location } = this.props;
-
-        if (location.state && location.state.from) {
-            return history.push(location.state.from)
-        }
-        history.push(routes.movies)
     }
 
     render() {
@@ -36,13 +28,13 @@ class MovieDetailsPage extends Component {
             overview,
             genres
         } = this.state.movieDetails;
-        const { error, id } = this.state;
+        const { error, id, backPath } = this.state;
 
          if (error) return <p>Something wrong!</p>
 
         return (
             <>
-                <button className="back-button" type="button" onClick={this.goBackBtn}>Go back</button>
+                <button className="back-button" type="button" onClick={() => this.props.history.push(backPath)}>Go back</button>
                 <div className="movie-details">
                     <div className="movie-poster">
                         <img src ={`https://themoviedb.org/t/p/w300${backdrop_path}`} alt={title}/>

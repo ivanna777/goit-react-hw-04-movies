@@ -1,5 +1,6 @@
 import { Component } from "react";
 import axios from 'axios';
+import queryString from "query-string";
 import MoviesList from "../components/MoviesList";
 import apiRequest from "../apiRequest";
 
@@ -8,6 +9,11 @@ class MoviesPage extends Component {
         movie: '',
         searchMoviesArr: [],
     }
+
+    componentDidMount() {
+    const prevQuery = queryString.parse(this.props.location.search).query;
+    if (prevQuery) this.fetchMovies(prevQuery);
+  }
       inputChange = (e) => {
         const movieToSearch = e.target.value;
         this.setState({movie: movieToSearch})
@@ -15,7 +21,13 @@ class MoviesPage extends Component {
     fetchMovies = (movie) => {
         axios
             .get(`${apiRequest.BASE_URL}/search/movie?query=${movie}&api_key=${apiRequest.API_KEY}`)
-            .then((response) => this.setState({searchMoviesArr: response.data.results}))           
+            .then((response) => this.setState({searchMoviesArr: response.data.results}))
+            .finally(() => {
+        this.props.history.push({
+          pathname: this.props.location.pathname,
+          search: `query=${movie}`,
+        });
+      });         
     }
 
     onSearch = (e) => {
